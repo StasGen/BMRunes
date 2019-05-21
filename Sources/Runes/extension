@@ -1,0 +1,22 @@
+precedencegroup OptionalAssignment {
+    associativity: right
+}
+
+infix operator ?= : OptionalAssignment
+
+public func ?= <T>(variable: inout T, value: T?) {
+    if let unwrapped = unwrap(any: value) ?? nil {
+        variable = unwrapped
+    }
+}
+
+public func unwrap<T: Any>(any: T) -> T? {
+    let mirror = Mirror(reflecting: any)
+    guard mirror.displayStyle == .optional else { return any }
+    guard let child = mirror.children.first else { return nil }
+    return unwrap(any: child.value) as? T
+}
+
+public func <*> <T, U>(f: (T) -> U, a: T) -> U {
+    return f(a)
+}
